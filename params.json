@@ -1,0 +1,1 @@
+{"name":"lang-dynjs","tagline":"An invokedynamic javascript DynJS runtime module for Vert.x","body":"# Vert.x DynJS JavaScript Language Implementation Module\r\n\r\nUse DynJS instead of Rhino on vert.x 2.0. Change langs.properties as so.\r\n\r\n`.js=dynjs`\r\n\r\nEnjoy\r\n","google":"","note":"Don't delete this file! It's used internally to help with page regeneration."}
