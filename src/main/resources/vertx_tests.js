@@ -7,9 +7,11 @@ var vertxTests = {};
 var container = require("vertx/container");
 vertxTests.vassert = org.vertx.testtools.VertxAssert;
 
-vertxTests.startTests = function (top) {
+vertxTests.startTests = function(top) {
   var methodName = container.config.methodName;
   vertxTests.vassert.initialize(__jvertx);
+  print("TOP: " + top);
+  print("METHOD: " + methodName);
   top[methodName]();
 }
 

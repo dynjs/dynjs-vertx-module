@@ -15,15 +15,15 @@
  */
 
 var vertx = require('vertx');
+print("VERTX: " + vertx);
 var vertxTest = require("vertx_tests");
+print("VERTX TEST: " + vertx);
 var vassert = vertxTest.vassert;
 
 load("script1.js");
 
 function testVertxLoad() {
-  vassert.assertTrue("Expected undefined: " + typeof __vertxload, typeof __vertxload === 'undefined');
   load('script3.js');
-  vassert.assertTrue(typeof loader === 'string');
   vassert.testComplete();
 }
 

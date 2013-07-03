@@ -1,7 +1,5 @@
 package org.dynjs.vertx;
 
-import java.io.FileNotFoundException;
-
 import org.dynjs.runtime.ExecutionContext;
 import org.dynjs.runtime.InitializationListener;
 import org.dynjs.runtime.Runner;
@@ -18,8 +16,7 @@ public class DynJSVerticle extends Verticle {
     }
 
     protected ExecutionContext initializeRootContext() {
-        return ExecutionContext.createGlobalExecutionContext(factory.getRuntime(), new InitializationListener()
-        {
+        return ExecutionContext.createGlobalExecutionContext(factory.getRuntime(), new InitializationListener() {
             @Override
             public void initialize(ExecutionContext context) {
                 rootContext = context;
@@ -30,14 +27,8 @@ public class DynJSVerticle extends Verticle {
     @Override
     public void start() {
         rootContext = initializeRootContext();
-        try {
-            factory.getRuntime().clearModuleCache();
-            factory.loadScript(this.rootContext, this.scriptName);
-        } catch (FileNotFoundException e) {
-            System.err.println("Cannot load script: " + this.scriptName);
-            e.printStackTrace();
-            throw new RuntimeException("Cannot start verticle", e);
-        }
+        factory.getRuntime().clearModuleCache();
+        rootContext.getGlobalObject().getRuntime().evaluate("load('" + this.scriptName + "')");
     }
 
     @Override

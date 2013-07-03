@@ -14,4 +14,7 @@
  * limitations under the License.
  */
 
-loader = __vertxload
+var vertxTest = require("vertx_tests");
+var vassert = vertxTest.vassert;
+vassert.assertEquals("script3.js", __vertxload);
+

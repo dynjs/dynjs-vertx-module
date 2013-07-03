@@ -16,21 +16,8 @@
 
 package org.dynjs.vertx;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import org.dynjs.Config;
-import org.dynjs.exception.ThrowException;
-import org.dynjs.runtime.AbstractNativeFunction;
-import org.dynjs.runtime.DynJS;
-import org.dynjs.runtime.DynObject;
-import org.dynjs.runtime.ExecutionContext;
-import org.dynjs.runtime.GlobalObject;
-import org.dynjs.runtime.GlobalObjectFactory;
-import org.dynjs.runtime.Runner;
+import org.dynjs.runtime.*;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Container;
@@ -91,70 +78,21 @@ public class DynJSVerticleFactory implements VerticleFactory {
         return this.mcl;
     }
 
-    protected Object loadScript(ExecutionContext context, String scriptName)
-            throws FileNotFoundException {
-        if (scriptName == null) {
-            return null;
-        }
-        File scriptFile = new File(scriptName);
-        ClassLoader old = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(runtime.getConfig().getClassLoader());
-        Object ret = null;
-        Runner runner = context.getGlobalObject().getRuntime().newRunner();
-        try {
-            if (scriptFile.exists()) {
-                context.getGlobalObject().addLoadPath(scriptFile.getParent());
-                context.getGlobalObject().put("__vertxload", this.getClass().getName());
-                ret = runner.withContext(context).withSource(scriptFile).execute();
-                context.getGlobalObject().remove("__vertxload");
-            } else {
-                InputStream is = runtime.getConfig().getClassLoader().getResourceAsStream(scriptName);
-                if (is == null) {
-                    throw new FileNotFoundException("Cannot find script: " + scriptName);
-                }
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                context.getGlobalObject().put("__vertxload", this.getClass().getName());
-                ret = runner.withContext(context).withSource(reader).execute();
-                context.getGlobalObject().remove("__vertxload");
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error loading script: " + scriptName + ". " + e.getLocalizedMessage());
-            throw e;
-        } finally {
-            Thread.currentThread().setContextClassLoader(old);
-        }
-        return ret;
-    }
-
     protected class DynJSGlobalObjectFactory implements GlobalObjectFactory {
 
         @Override
         public GlobalObject newGlobalObject(final DynJS runtime) {
             final GlobalObject globalObject = new GlobalObject(runtime);
+            final VertxLoad loader = new VertxLoad(globalObject);
             globalObject.defineGlobalProperty("__dirname", System.getProperty("user.dir"));
             globalObject.defineReadOnlyGlobalProperty("stdout", System.out);
             globalObject.defineReadOnlyGlobalProperty("stderr", System.err);
             globalObject.defineGlobalProperty("global", globalObject);
             globalObject.defineGlobalProperty("runtime", runtime);
-            globalObject.defineGlobalProperty("load", new AbstractNativeFunction(globalObject) {
-                @Override
-                public Object call(ExecutionContext context, Object self, Object... args) {
-                    try {
-                        return loadScript(context, (String) args[0]);
-                    } catch (FileNotFoundException e) {
-                        throw new ThrowException(context, e);
-                    }
-                }
-            });
+            globalObject.defineGlobalProperty("load", loader);
             globalObject.defineGlobalProperty("__jvertx", vertx);
             globalObject.defineGlobalProperty("__jcontainer", container);
             return globalObject;
         }
     }
-
 }
