@@ -21,8 +21,8 @@ public class VertxLoad extends AbstractNativeFunction {
         Thread.currentThread().setContextClassLoader(context.getGlobalObject().getRuntime().getConfig().getClassLoader());
         Object ret = null;
         Runner runner = context.getGlobalObject().getRuntime().newRunner();
+        LexicalEnvironment localEnv = context.getVariableEnvironment();
         try {
-            LexicalEnvironment localEnv = context.getVariableEnvironment();
             localEnv.getRecord().createMutableBinding(context, "__vertxload", false);
             localEnv.getRecord().setMutableBinding(context, "__vertxload", scriptFile.getName(), false);
 
@@ -47,6 +47,7 @@ public class VertxLoad extends AbstractNativeFunction {
             System.err.println("Error loading script: " + scriptName + ". " + e.getLocalizedMessage());
             throw e;
         } finally {
+            localEnv.getRecord().deleteBinding(context, "__vertxload");
             Thread.currentThread().setContextClassLoader(old);
         }
         return ret;

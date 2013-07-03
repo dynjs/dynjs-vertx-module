@@ -11,6 +11,7 @@ vertxTests.startTests = function(top) {
   var methodName = container.config.methodName;
   vertxTests.vassert.initialize(__jvertx);
   print("TOP: " + top);
+  print("TYPEOF TOP: " + typeof top);
   print("METHOD: " + methodName);
   top[methodName]();
 }

@@ -230,7 +230,7 @@
       <executions>
         <execution>
           <id>Generate JSDoc documentation</id>
-          <phase>generate-sources</phase>
+          <phase>package</phase>
           <goals>
             <goal>exec</goal>
           </goals>

@@ -28,7 +28,7 @@ public class DynJSVerticle extends Verticle {
     public void start() {
         rootContext = initializeRootContext();
         factory.getRuntime().clearModuleCache();
-        rootContext.getGlobalObject().getRuntime().evaluate("load('" + this.scriptName + "')");
+        factory.getRuntime().newRunner().withContext(rootContext).withSource("load('" + this.scriptName + "')").evaluate();
     }
 
     @Override
